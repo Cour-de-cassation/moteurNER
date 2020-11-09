@@ -1,4 +1,4 @@
-# Moteur de pseudoanonymisation de la Cours de Cassation
+# Moteur de pseudoanonymisation de la Cour de Cassation
 
 1. Intro sur la mission open data (pourquoi)
 2. Les briques (quoi): 
