@@ -43,9 +43,7 @@ La mise en  œuvre  normative et technique  de cet open data dans la perspective
 - de définir les principes directeurs de l’architecture nouvelle de l’open data, en confiant la gestion des bases à la  Cour  de  cassation  et  au  Conseil  d’Etat,  ainsi  que  la  mission  essentielle  de «pseudonymisation» des décisions collectées auprès des juridictions;
 - d**’exposer les principales possibilités de diffusion des décisions au public**.
 
-![objectifopendata](.\img\objectifopendata.png)
-
-[image challenge open data]
+![objectifopendata](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/objectifopendata.png)
 
 A ce jour, 180 000 décisions par an sont collectées dans les bases de  données « Jurinet » et « Jurica » tenues par la Cour de cassation.  Sur ces 180 000 décisions, moins de 15 000 étaient diffusées en *open data* et sur le site Légifrance. 
 
@@ -53,9 +51,13 @@ Le logiciel d'anonymisation reposant sur un moteur de règles Luxide, qui foncti
 
 ### Programme EIG
 
-logo
+La Cour de cassation a fait acte de candidature dans le cadre du programme « Entrepreneurs d’intérêt général » (EIG) en proposant de **développer des   techniques   d’apprentissage  automatique  destinées  à identifier les données à pseudonymiser**   (retirer   les données  directement  identifiantes)  dans  les décisions de justice avant de les rendre accessibles en ligne et réutilisables.
 
-La Cour de cassation a fait acte de candidature dans le cadre du programme « Entrepreneurs d’intérêt général » (EIG) en proposant de **développer des   techniques   d’apprentissage  automatique  destinées  à identifier les données à pseudonymiser**   (retirer   les données  directement  identifiantes)  dans  les décisions de justice avant de les rendre accessibles en ligne et réutilisables. 
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/logo-marianne-eig-site.png)
+
+ 
+
+### Savoir plus...
 
 Pour apprendre plus sur le projet EIG 3 "Open Justice": [le site officiel]( https://entrepreneur-interet-general.etalab.gouv.fr/defis/2019/openjustice.html) 
 
