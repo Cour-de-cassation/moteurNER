@@ -69,25 +69,78 @@ Sur l'open data à la Cour de Cassation: [sur le site de la Cour de Cassation](h
 
 
 
-2. Les briques (quoi): 
+### Les briques du moteur NLP:
 
-   1. LM
-      1. accumulation de documents, construction des iobs
-   2. NER:
-      1. Import de document
-      2. Split en phrases
-      3. seqtagger 
-      4. retour des entites
-   3. Postprocess
-   4. interface (court)
 
-3. Modèle en production
 
-4. Projects en cours:
+#### 1. Language Model
 
-   1. Monitoring
-   2. mise en doute statistique
-   3. test unitaires
-   4. selection pour retrain
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/jurica_jurinet.png)
 
-   
+Language Model (le modèle du langage) permet d'obtenir des vecteurs multidimensionnels de mots (embeddings) qui décrivent dans un langage mathématique le mot (ou token plus précisément dans son contexte).
+
+Il existe de nombreuses méthodes d'obtention des embeddings, word2vec, GloVe, BERT, ELMo ...
+
+Dans notre modèle en production, nous utilisons une combinaison des embeddings Fasttex (une variante de word2vec) [ref] et Flair (characted-based embeddings) [ref].
+
+Nous sommes également en train de tester d'autres combinaisons d'embeddings dont BPEembeddings et CamemBERT
+
+Il est possible d'utiliser des vecteurs déjà entrainés, par exemple sur Wikipédia. Néanmoins pour avoir une meilleure représentation de mots dans leur contexte, nous avons entrainé notre propre language models sur le stock de décisions de la Cour de Cassation (base jurinet) et des Cours d'Appels (base jurica) - **environ XXX décisions intègres**.
+
+Les texte de décisions a été extrait et formaté pour permettre l'entrainement du langage.
+
+
+
+#### Fasttext
+
+Pour le LM fasttext, nous avons utilisé les paramètres décrites dans l'article [Learning Word Vectors for 157 Languages](https://arxiv.org/abs/1802.06893)
+
+```python
+from fastText import train_unsupervised
+
+# fasttext_model = train_unsupervised(input='your/tokenized/txt/file.txt', model='cbow', lr=0.5,  neg=100, epoch=25)
+# To reduce vocabulary size which was huge (more than 1M words), we fix minCount to 100
+# We augment windows size to 8 and dim to 300
+fasttet_model = train_unsupervised(input='your/tokenized/txt/file.txt', model='cbow', lr=0.5,  neg=100, epoch=25, ws=8, dim=300, minCount=100)
+fasttext_model.save_model('fasttext_model.bin')
+```
+
+ #### Flair embeddings 
+
+Les flairs embeddings ont été entrainé suivant les [instructions officielles](https://github.com/flairNLP/flair/blob/master/resources/docs/TUTORIAL_9_TRAINING_LM_EMBEDDINGS.md). Les vecteurs ont été fine-tunés à partir de vecteurs: "fr-forward" et "fr-backward".
+
+Les paramètres utilisés pour entrainer les flair embeddings:
+
+
+
+#### 2. Sequence Tagger (NER
+
+Construction des IOBs
+
+​	Split en phrases & tokens
+
+Seqtagger
+
+Output
+
+
+
+#### 3. Postprocessing
+
+
+
+### Interface de pseudonymisation
+
+
+
+ ### Mise en production
+
+
+
+### Projets en cours
+
+1. Monitoring
+2. mise en doute statistique
+3. test unitaires
+4. selection pour retrain
+
