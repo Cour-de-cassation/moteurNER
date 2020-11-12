@@ -41,7 +41,7 @@ La mise en  œuvre  normative et technique  de cet open data dans la perspective
 - de  renforcer  les  techniques  existantes  dites  de «pseudonymisation» des  décisions,  afin  d’**assurer  la protection de la vie privée des personnes, qui est garantie par la loi pour une République numérique**;
 - d’instituer une régulation des algorithmes qui exploitent les données issues des décisions, afin d’assurer une transparence sur les méthodologies mises en œuvre;
 - de définir les principes directeurs de l’architecture nouvelle de l’open data, en confiant la gestion des bases à la  Cour  de  cassation  et  au  Conseil  d’Etat,  ainsi  que  la  mission  essentielle  de «pseudonymisation» des décisions collectées auprès des juridictions;
-- d**’exposer les principales possibilités de diffusion des décisions au public**.
+- **d’exposer les principales possibilités de diffusion des décisions au public**.
 
 ![objectifopendata](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/objectifopendata.png)
 
@@ -111,21 +111,118 @@ Les flairs embeddings ont été entrainé suivant les [instructions officielles]
 
 Les paramètres utilisés pour entrainer les flair embeddings:
 
-
-
-#### 2. Sequence Tagger (NER
-
-Construction des IOBs
-
-​	Split en phrases & tokens
-
-Seqtagger
-
-Output
+**[...]**
 
 
 
-#### 3. Postprocessing
+#### 2. Sequence Tagger (NER)
+
+
+
+#### Données annotées 
+
+Contrairement à l'entrainement du language model, qui ne demande pas de données étiquetées, l'apprentissage d'un modèle de reconnaissance des entités nommées (Named Entity Recognition, NER) ne peut pas fonctionner sans les exemples (une quantité importante de données étiquetés/labelisées/annotées). 
+
+Grâce au travail manuel des agents, à la Cour de Cassation, il existait un nombre important de données annotées. 
+
+Exemple d'une phase annotée:
+
+
+
+*<tag: prenom start:0 end:4> Jean <tag: nom start:5 end:12 > Du Bois né le <tag:date_de_naissance start:18 end:33> 31 janvier 2000 a fondé une entreprise d'informatique <tag: personne_morale start: end:> INFOWORLD.*
+
+#### Construction des fichiers au format IOB
+
+Afin de traduire les données annotées en format le plus commun pour l'apprentissage NER, il fallait diviser le texte en phrases et en tokens.
+
+Nous avons utilisé une version modifié de `spacy.tokenizer()` de la version spacy 2.1.6. Nous  sommes en train de tester le tokenizer et sentence splitter de la nouvelle version 3.0.
+
+Un fichier IOB de la phrase de l'exemple précédent ressemblerait à 
+
+```
+Jean B-prenom + arret_id
+Du B-nom + arret_id
+Bois I-nom + arret_id
+né O + arret_id
+le O + arret_id
+31 B-date_de_naissance + arret_id
+janvier I-date_de_naissance + arret_id
+2000 I-date_de_naissance + arret_id
+a O + arret_id
+fondé O + arret_id
+une O + arret_id
+entreprise O + arret_id
+INFOWORLD B-personne_morale + arret_id
+.  O - arret_id
+```
+
+Où la première colonne correspond au token, deuxième au label (tag), troisième indique si le token est suivi par une espace et quatrième indique id de document.
+
+Les document annotées transformés en fichiers iob, ont été revu par les data scientist afin de constituer un jeu de données "**GOLD**", un corpus de 183145 train + 24944 dev + 21721 test sentences.
+
+#### Sequence Tagger
+
+Nous avons utilisé le framework flair [ref] pour entrainer le modèle BILSTM + CRF. Les vecteurs de mots discuté au dessus ont été utilisée en entrée du modèle:
+
+```
+Model: "SequenceTagger(
+  (embeddings): StackedEmbeddings(
+    (list_embedding_0): WordEmbeddings('fasttext_model.gensim')
+    (list_embedding_1): FlairEmbeddings(
+      (lm): LanguageModel(
+        (drop): Dropout(p=0.5, inplace=False)
+        (encoder): Embedding(275, 100)
+        (rnn): LSTM(100, 1024)
+        (decoder): Linear(in_features=1024, out_features=275, bias=True)
+      )
+    )
+    (list_embedding_2): FlairEmbeddings(
+      (lm): LanguageModel(
+        (drop): Dropout(p=0.5, inplace=False)
+        (encoder): Embedding(275, 100)
+        (rnn): LSTM(100, 1024)
+        (decoder): Linear(in_features=1024, out_features=275, bias=True)
+      )
+    )
+  )
+  (word_dropout): WordDropout(p=0.05)
+  (locked_dropout): LockedDropout(p=0.5)
+  (embedding2nn): Linear(in_features=2148, out_features=2148, bias=True)
+  (rnn): LSTM(2148, 256, num_layers=2, batch_first=True, dropout=0.5, bidirectional=True)
+  (linear): Linear(in_features=512, out_features=45, bias=True)
+  (beta): 1.0
+  (weights): None
+  (weight_tensor) None
+)
+```
+
+Avec les paramètres  les plus importants du modèle sequence tagger:
+
+```
+Parameters:
+learning_rate: "0.1"
+mini_batch_size: "32"
+patience: "2"
+anneal_factor: "0.5"
+max_epochs: "100"
+shuffle: "True"
+train_with_dev: "False"
+batch_growth_annealing: "False"
+```
+
+#### Résultat
+
+
+
+#### 3. Prédiction
+
+
+
+
+
+
+
+#### 4. Postprocessing
 
 
 
@@ -138,6 +235,10 @@ Output
 
 
 ### Projets en cours
+
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/moteur_pseudo.png)
+
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/monitoring.png)
 
 1. Monitoring
 2. mise en doute statistique
