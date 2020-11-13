@@ -196,7 +196,7 @@ Model: "SequenceTagger(
 )
 ```
 
-Avec les paramètres  les plus importants du modèle sequence tagger:
+Avec les paramètres  les plus importants du modèle séquence tagger:
 
 ```
 Parameters:
@@ -212,29 +212,119 @@ batch_growth_annealing: "False"
 
 #### Résultat
 
+Les résultats d'entrainement sur le jeu de données test est actuellement (pour les entités les plus fréquentes):
+
+```bash
+######################
+personnephysiquenom precision: 0.9711 - recall: 0.9777 - accuracy: 0.9500 - f1-score: 0.9744
+personnephysiqueprenom precision: 0.9326 - recall: 0.9547 - accuracy: 0.8931 - f1-score: 0.9435
+#######################
+personnemorale precision: 0.8630 - recall: 0.9286 - accuracy: 0.8093 - f1-score: 0.8946
+#######################
+adresse precision: 0.9110 - recall: 0.8238 - accuracy: 0.7624 - f1-score: 0.8652
+#######################
+datedenaissance precision: 0.9571 - recall: 0.9630 - accuracy: 0.9231 - f1-score: 0.9600
+#######################
+professionnelnom precision: 0.9706 - recall: 0.9739 - accuracy: 0.9460 - f1-score: 0.9722
+professionnelprenom precision: 0.9800 - recall: 0.9608 - accuracy: 0.9424 - f1-score: 0.9703
+#######################
+```
+
+`MICRO_AVG: acc 0.8882 - f1-score 0.9408`
+
+#### 3. Prédiction & mise en production
+
+Le modèle entrainé est ensuite utilisé à prédire les entités pour les nouveaux documents. 
+
+Le code est rendu exploitable sous la forme d'une librairie. 
+
+Une autre librairie python sert d'une api REST conçu avec Flask.  
+
+Grâce à l'api, le texte d'une décision stockée dans les bases internes est lu, séparé en phrases et tokenisé, les entités détectées par le modèle et ensuite les positions de ces entités dans le textes sont stockés dans un format json.
 
 
-#### 3. Prédiction
-
-
-
-
-
-
+```json
+{
+    "entities": [
+        {
+            "text": "FROUIN",
+            "start": 844,
+            "end": 850,
+            "label": "professionnelnom",
+            "source": "NER model"
+        },
+        {
+            "text": "AG2R Réunica  prévoyance",
+            "start": 1227,
+            "end": 1251,
+            "label": "personnemorale",
+            "source": "NER model"
+        },
+        {
+            "text": "Slove",
+            "start": 2453,
+            "end": 2458,
+            "label": "professionnelnom",
+            "source": "NER model"
+        }]
+}        
+```
 
 #### 4. Postprocessing
+
+En plus de la prédiction du modèle deep learning, nous appliquons plusieurs corrections *déterministes* qui permettent de corriger les fautes communs, omission du modèle. Si un nom où prénom est détectée plus de 2 fois dans décision, toutes les occurrences de ces entités seront annotés. 
+
+La catégorie "physicomorale" qui englobe les personnes morales dont le nom contient le nom de famille d'une partie, elle est constituée par une fonction déterministe en vérifiant si dans le noms de personnes morales détectés par l'algorithme un nom d'une personne physique est présent. 
+
+Les numéros normalisées comme nr de carte bancaires qui apparaissent très rarement dans les décisions dont également mieux détecté par une règle regex.  
+
+
+
+##### Rapport d'anonymisation
+
+Avec des règles déterministes, certains doutes sont levés et communiqué sous la forme des messages qui seront visible pour les annotateurs dans l'interface. Nous appelons l'ensemble de ces message 'rapport d'anonymisation' dans notre jargon.
+
+Exemple d'un doute ce serait un nom de longueur de 1 à 2 lettres, M. Cédric O serait signalé comme un doute dans le rapport. Egalement si deux entreprises de noms "Pino" et "Pinot" sont détectées dans le même décision, on se posera la question s'il s'agit de la même entreprise. 
 
 
 
 ### Interface de pseudonymisation
 
+Actuellement l'équipe d'annotateurs de la Cours de Cassation dispose d'une interface qui reçoit les documents de la base de documents, d'autre part elle reçoit les positions des entités  et elle permet d'afficher les données labelisées. Les annotateurs peuvent corriger les annotations: en ajouter, supprimer ou modifier. Ils ont aussi un aperçu du document pseudonymisé (où les entités voulues sont remplacées par un texte de remplacement). Cette interface a des fonctionnalités limitées pour les annotateurs, amis aussi ne permet pas une remontée d'information directe vers le moteur de pseudonymisation, ou plutôt son module de suivi de performances (lire plus bas). L'alimentation de la base d'entrainement/test du modèle n'est pas automatisé.
 
-
- ### Mise en production
+Pour ceci un appel à projet EIG4 a été lancé. Une nouvelle équipe des entrepreneurs intérêt général travaille sur la conception d'une nouvelle interface. Le projet est open source et devrait permettre à d'autres institutions et organisations s'en inspirer pour leur interfaces: [Le repo github du projet Label ](). Cette nouvel interface serait également un outil de gestion et fermera le cercle de remontée d'information vers le moteur de pseudonymisation. Elle permettra également une meilleure gestion d'annotations, contrôle de qualité et une meilleure remontée des erreurs vers les équipes techniques.
 
 
 
 ### Projets en cours
+
+Actuellement le flux de documents est automatisé dans une seule direction: les documents arrivant dans la base sont pseudonymisés par le moteur par batches toutes les semaines, ensuite ils sont transmis vers interface d'annotation et finalement remontés dans la base documentaire et exportés vers la DILA (ref). Le modèle est actuellement évalué par les annotateurs en comptabilisant le nombre de décisions traités par jour et le nombre de sous-anonymisations (de données sensibles qui n'ont pas été pseudonymisées). Une remontée automatique de corrections manuels et son évaluation par équipe technique n'est pas, à ce jour, automatisée.
+
+##### Suivi de performances
+
+Un calcul de performances du modèle de nouveaux documents annotés en prenant en compte différents critères est une information clef que nous allons calculer. Un nouveau module de suivi de performances permettra de calculer la performance du modèle et la valeur ajouté du postprocessing. Ceci aidera a indiquer les points faibles du modèle.
+
+##### Contrôle de qualité
+
+Les phrases les plus difficiles, les erreurs de modèle vont enrichir la base de **tests unitaires** qui assurent un contrôle de qualité du modèle. Il est important que les erreurs connus et communs ne soit pas reproduits par le modèle. 
+
+
+
+##### Sélection de documents pour améliorer le modèle
+
+##### Mise en doute statistique
+
+entropy et companie
+
+##### 
+
+ 
+
+##### Alertes
+
+
+
+
 
 ![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/moteur_pseudo.png)
 
@@ -243,5 +333,5 @@ batch_growth_annealing: "False"
 1. Monitoring
 2. mise en doute statistique
 3. test unitaires
-4. selection pour retrain
+4. sélection pour retrain
 
