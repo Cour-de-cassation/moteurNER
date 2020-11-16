@@ -1,6 +1,4 @@
-# Moteur de pseudoanonymisation de la Cour de Cassation
-
-1. [TOC]
+# Moteur de pseudonymisation de la Cour de Cassation
 
 ## Pourquoi l'Open data des décisions de justice ?
 
