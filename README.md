@@ -272,9 +272,9 @@ entropy et companie
 
 ##### Alertes
 
-![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/moteur_pseudo.png)
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/moteur_pseudo.svg)
 
-![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/monitoring.png)
+![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/monitoring.svg)
 
 1. Monitoring
 2. mise en doute statistique
