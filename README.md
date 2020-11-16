@@ -260,23 +260,27 @@ Un calcul de performances du modèle sur de nouveaux documents annotés en prena
 
 #### Contrôle de qualité
 
-Les phrases les plus complexes dans lesquelles le modèle *deep learning* se trompe vont enrichir la base de **tests unitaires** qui assurent un contrôle de qualité du modèle. Il est important que les erreurs connues et communes ne soient pas reproduites par le modèle.
+Les phrases les plus complexes dans lesquelles le modèle *deep learning* vont venir enrichir la base de **tests unitaires** qui assurent un contrôle de qualité du modèle. Il est important que les erreurs connues et communes ne soient pas reproduites par les nouvelles version du modèle, qu'une augmentation sur un axe ne soit pas une détérioration sur un autre.
 
-#### Sélection de documents pour améliorer le modèle
+A terme un suivi automatisé permettra la détection des erreurs et ajout de phrases au panel de tests unitaires.  Il est possible d'ajouter également les variations de ces phrases, par une augmentation du langage (text augmentation) ce qui testera si le modèle n'a pas appris un exemple par cœur sans généraliser.
 
-#### Mise en doute statistique
+#### Sélection des phrases pour améliorer le modèle
 
-entropy et companie
+Actuellement, la base d'entrainement est enrichie régulièrement par des nouveaux documents annotés. Il se peut qu'avec cette technique le modèle arrive un jour à un plafond de verre où plus de donnée ne se traduit pas en amélioration de performances.  Pour ceci une sélection des contenus qui impactent significativement les performances du modèle peut être plus intéressant. Avec moins de données mais mieux sélectionnés, on métrise aussi le poids du modèle qui est un facteur important en production.  
 
-#####
+A la base de détection des erreurs, il possible d'ajouter dans l'entrainement que les phrases en erreur remplissant certaines critères et faire évaluer les performances du modèle.
 
-##### Alertes
+#### Mise en doute statistique: prédire ses propres erreurs
+
+Il serait intéressant de savoir à quel point on peut se fier à une prédiction. Ceci est possible grâce à une indice de confiance ou certitude qui se calcule pour chaque entité. Il n'existe pas un façon bien établi de cette confiance. Elle peut être estimé à partir de distribution de probabilités, entropie ou marge maximale. En soit, les valeur de confiance ne peuvent pas se traduire en pourcentage ou une confiance pour le document dans sa entièreté. Pour les entités composées de plusieurs tokens, le calcul n'est pas trivial non plus. 
+
+Une traduction de ces valeurs mathématiques vers une vérité du terrain permettra dans le futur de lever des doutes pour les documents et entités dont les prédictions sont moins fiables que les autres. Nous envisageons de nous inspirer de techniques d'online learning et entrainer un classifier qui aidera à définir le seuil de déclenchement des alertes de confiance. 
+
+A terme ces alertes pourraient être intégrés dans l'interface de suivi et peut-être même dans l'interface d'utilsateur.
+
+
 
 ![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/moteur_pseudo.svg)
 
 ![](https://raw.githubusercontent.com/Cour-de-cassation/moteurNER/main/img/monitoring.svg)
 
-1. Monitoring
-2. mise en doute statistique
-3. test unitaires
-4. sélection pour retrain
