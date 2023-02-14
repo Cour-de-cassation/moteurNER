@@ -76,8 +76,6 @@ Les Byte Pair Embeddings ont été entrainés à l'aide du répertoire de code [
 Les flair embeddings ont été entrainés suivant les [instructions officielles](https://github.com/flairNLP/flair/blob/master/resources/docs/TUTORIAL_9_TRAINING_LM_EMBEDDINGS.md). Les vecteurs ont été fine-tunés à partir de vecteurs: "fr-forward" et "fr-backward".
 
 
-**[...]**
-
 #### 2. Sequence Tagger (NER)
 
 #### Données annotées
