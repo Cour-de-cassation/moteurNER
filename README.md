@@ -61,17 +61,15 @@ Language Model (le modèle du langage) permet d'obtenir des vecteurs multidimens
 
 Il existe de nombreuses méthodes d'obtention des embeddings, word2vec, GloVe, BERT, ELMo ...
 
-Dans notre modèle en production, nous utilisons une combinaison des embeddings Fasttext (une variante de word2vec) [ref] et Flair (characted-based embeddings) [ref].
+Dans notre modèle en production, nous utilisons une combinaison de [Byte Pair Embeddings](https://aclanthology.org/L18-1473/) et de [Flair Embeddings](https://www.aclweb.org/anthology/C18-1139/).
 
-Nous sommes également en train de tester d'autres combinaisons d'embeddings dont BPEembeddings et CamemBERT
-
-Il est possible d'utiliser des vecteurs déjà entrainés, par exemple sur Wikipédia. Néanmoins pour avoir une meilleure représentation de mots dans leur contexte, nous avons entrainé notre propre language models sur le stock de décisions de la Cour de Cassation (base jurinet) et des Cours d'Appels (base jurica) - **environ XXX décisions intègres**.
+Il est possible d'utiliser des vecteurs déjà entrainés, par exemple sur Wikipédia. Néanmoins pour avoir une meilleure représentation de mots dans leur contexte, nous avons entrainé notre propre language models sur le stock de décisions de la Cour de Cassation (base jurinet) et des Cours d'Appels (base jurica) - **environ 2 millions décisions intègres**.
 
 Les texte de décisions a été extrait et formaté pour permettre l'entrainement du langage.
 
-#### Fasttext
+#### Byte Pair Embeddings
 
-Pour le LM fasttext, nous avons utilisé les paramètres décrites dans l'article [Learning Word Vectors for 157 Languages](https://arxiv.org/abs/1802.06893)
+Les Byte Pair Embeddings ont été entrainés à l'aide du répertoire de code [piecelearn](https://github.com/stephantul/piecelearn) disponible sur  GitHub.
 
 #### Flair embeddings
 
@@ -208,21 +206,21 @@ Grâce à l'API, le texte d'une décision stockée dans les bases internes est l
             "text": "FROUIN",
             "start": 844,
             "end": 850,
-            "label": "professionnelnom",
+            "label": "professionnelMagistrat",
             "source": "NER model"
         },
         {
             "text": "AG2R Réunica  prévoyance",
             "start": 1227,
             "end": 1251,
-            "label": "personnemorale",
+            "label": "personneMorale",
             "source": "NER model"
         },
         {
             "text": "Slove",
             "start": 2453,
             "end": 2458,
-            "label": "professionnelnom",
+            "label": "professionnelAvocat",
             "source": "NER model"
         }]
 }
@@ -240,7 +238,7 @@ En tout, 8 méthodes déterministes sont appliquées sur chaque décision pour r
 
 ##### Rapport d'anonymisation
 
-Avec des règles déterministes, certains doutes sont levés et communiqué sous la forme des messages qui seront visible par les annotateurs dans l'interface de pseudonymistion. Nous appelons l'ensemble de ces message le 'rapport d'anonymisation'.
+Avec des règles déterministes, certains doutes sont levés et communiqués sous la forme des messages qui seront visible par les annotateurs dans l'interface de pseudonymistion. Nous appelons l'ensemble de ces message le 'rapport d'anonymisation'.
 
 Par exemple, si un nom de famille ne contient qu'une ou deux lettres, il sera signalé comme un doute dans le rapport. Egalement si deux prénoms "Thibaut" et "Thibault" sont détectés dans le même décision, on demandera s'il s'agit de la même personne ou non.
 
